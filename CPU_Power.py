@@ -36,13 +36,13 @@ PDELTA = {250000: [98.916, 73.25, 62.186, 51.776],
           1500000: [1029.037301, 973.124055, 1363.383362, 1066.127547],
           1600000: [1106.889107, 1049.560269, 1468.680628, 1153.390501]}
 
-THRESHOLD = {'40MHz': {'MCS0': 100, 'MCS1': 100, 'MCS2': 130, 'MCS3': 150, 'MCS4': 400, 'MCS5': 600, 'MCS6': 700, 'MCS7': 700, 'MCSRA': 900}}
+THRESHOLD = {'40MHz': {'MCS0': 100, 'MCS1': 100, 'MCS2': 120, 'MCS3': 150, 'MCS4': 200, 'MCS5': 300, 'MCS6': 300, 'MCS7': 300, 'MCSRA': 300}}
 
-#BASE_IP_DIR = "C:\PowerMeasurementStudy\Readings"
-#BASE_OP_DIR = "C:\PowerMeasurementStudy\Results"
+BASE_IP_DIR = "C:\PowerMeasurementStudy\Readings"
+BASE_OP_DIR = "C:\PowerMeasurementStudy\Results"
 
-BASE_IP_DIR = "C:\Test\Readings"
-BASE_OP_DIR = "C:\Test\Results"
+#BASE_IP_DIR = "C:\Test\Readings"
+#BASE_OP_DIR = "C:\Test\Results"
 
 for freq in os.listdir(BASE_IP_DIR):
     freqDir = BASE_IP_DIR + "\/" + freq
@@ -52,13 +52,13 @@ for freq in os.listdir(BASE_IP_DIR):
             mcsDir = locationDir + "\/" + mcs
             avgPowerList = []
             manualEdit = False
+            mcsFile = open(BASE_OP_DIR + "\/" + freq + "\/" + location + "\/" + mcs + "\/" + 'PowerAvg.txt', 'w')
             for reading in os.listdir(mcsDir):
                 readingDir = mcsDir + "\/" + reading
                 print (readingDir + "\/" + "log_" + freq + "_" + mcs + "_" + reading)
                 with open(readingDir + "\/" + "log_" + freq + "_" + mcs + "_" + reading) as logFile:
                     lines = logFile.readlines()
                 count = 1
-                cumulativePower = 0
                 powerList = []
                 freqList = []
                 medPowerList = []
@@ -78,7 +78,7 @@ for freq in os.listdir(BASE_IP_DIR):
                     power = PBASE[cpuFreq][numCoreActive-1] + (PDELTA[cpuFreq][0] * cpuUtil0)/100 + (PDELTA[cpuFreq][1] * cpuUtil1)/100 + (PDELTA[cpuFreq][2] * cpuUtil2)/100 + (PDELTA[cpuFreq][3] * cpuUtil3)/100
                     powerList.append(power)
                     medPowerList = scpy.medfilt(powerList, kernel_size=15)
-                    fileHandle.write('{0:3d} {1:15f} {2:15f} \n'.format(count, power, cumulativePower))
+                    fileHandle.write('{0:3d} {1:15f} \n'.format(count, power))
                     count += 1
                 with PdfPages(BASE_OP_DIR + "\/" + freq + "\/" + location + "\/" + mcs + "\/" + reading + "\/" + "graph_pdf.pdf") as pdf:
 
@@ -97,27 +97,45 @@ for freq in os.listdir(BASE_IP_DIR):
                     plt.close()
                     startIndex = 0
                     endIndex = 0
-                    for i in range(len(medPowerList)-1, 7, -1):
-                        if medPowerList[i-7] - medPowerList[i] > THRESHOLD[freq][mcs]:
-                            endIndex = i
-                        elif medPowerList[i] - medPowerList[i-7] > THRESHOLD[freq][mcs]:
-                            startIndex = i-7
-                    if 80 < endIndex - startIndex < 110:
-                        avgPower = sum(powerList[startIndex:endIndex:1])/endIndex - startIndex
+                    avgPower = 0
+                    windowSize = 10
+                    for i in range(len(medPowerList) - windowSize - 1):
+                        if medPowerList[i+windowSize] - medPowerList[i] > THRESHOLD[freq][mcs] and 20 <= i <= 80:
+                            startIndex = i + windowSize
+                        elif medPowerList[i] - medPowerList[i+windowSize] > THRESHOLD[freq][mcs] and 120 <= i <= 180:
+                            endIndex = i + windowSize
+                    if 80 < endIndex - startIndex < 110 and startIndex != 0 and endIndex != 0:
+                        avgPower = sum(powerList[startIndex:endIndex:1])/(endIndex - startIndex)
+                        mcsFile.write('Power : ' + str(avgPower) + '\t')
+                        mcsFile.write('Start Index : ' + str(startIndex) + '\t')
+                        mcsFile.write('End Index : ' + str(endIndex) + '\n')
+                    elif endIndex == 0 and mcs == 'MCS0':
+                        startIndex = 80
+                        endIndex = 120
+                        avgPower = sum(powerList[startIndex:endIndex:1])/(endIndex - startIndex)
+                        mcsFile.write('Power : ' + str(avgPower) + '\t')
+                        mcsFile.write('Start Index(fixed): ' + str(startIndex) + '\t')
+                        mcsFile.write('End Index(fixed) : ' + str(endIndex) + '\n')
+                    elif endIndex != 0:
+                        smallWindow = 4
+                        for i in range(endIndex - 110, endIndex - 80):
+                            if medPowerList[i+smallWindow] - medPowerList[i] > 50:
+                                startIndex = i + smallWindow
+                        if startIndex == 0:
+                            startIndex = endIndex - 100
+                        avgPower = sum(powerList[startIndex:endIndex:1])/(endIndex - startIndex)
+                        mcsFile.write('Power : ' + str(avgPower) + '\t')
+                        mcsFile.write('Start Index(from end index): ' + str(startIndex) + '\t')
+                        mcsFile.write('End Index : ' + str(endIndex) + '\n')
                     else:
                         manualEdit = True
                         print('calculate manually')
                     avgPowerList.append(avgPower)
-                    fileHandle.write('Start Index : ' + str(startIndex) + '\n')
-                    fileHandle.write('End Index : ' + str(endIndex) + '\n')
-                    fileHandle.write('Power : ' + str(avgPower) + '\n')
-                mcsFile = open(mcsDir + "\/" + 'PowerAvg.txt', 'w')
-                for pAvg in avgPowerList:
-                    mcsFile.write(str(pAvg) + '\n')
-                if manualEdit:
-                    mcsFile.write("Average Power for MCS : " + str(sum(avgPowerList)/len(avgPowerList)))
-                else:
-                    mcsFile.write("calculate manually")
+
+            if manualEdit:
+                mcsFile.write("Average Power for MCS : check manually")
+            else:
+                mcsFile.write("Average Power for MCS : " + str(sum(avgPowerList)/len(avgPowerList)))
 
 
 
