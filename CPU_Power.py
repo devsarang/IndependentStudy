@@ -4,7 +4,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import scipy.signal as scpy
 import numpy as np
 import json
-
+import random
 
 
 PBASE = {250000: [272.474, 271.842, 271.53, 271.852], 300000: [271.104, 272.486, 272.03, 272.26],
@@ -161,23 +161,24 @@ for freq in os.listdir(BASE_IP_DIR):
                     powerBaseList.append(sum(powerList[1:10])/10)
             if manualEdit:
                 mcsFile.write("Average Power for MCS : check manually")
-                locationDict[mcs] = 0
+                locationDict[mcs] = 1          #change it
             else:
-                diffPower = sum([i - j for i, j in zip(avgPowerList, powerBaseList)])/len(avgPowerList)
+                diffPower = abs(sum([i - j for i, j in zip(avgPowerList, powerBaseList)])/len(avgPowerList))                    # remove absolute
                 mcsFile.write("Average Power for MCS : " + str(diffPower))
                 locationDict[mcs] = diffPower
         freqDict[location] = locationDict
     resultDict[freq] = freqDict
-with open(BASE_OP_DIR + '\/' + 'result.json', 'w') as fpJson:
+with open(BASE_OP_DIR + '\/' + 'cpu_result.json', 'w') as fpJson:
     json.dump(resultDict, fpJson)
-with open(BASE_OP_DIR + '\/' + 'result.txt', 'w') as fpText:
+with open(BASE_OP_DIR + '\/' + 'cpu_result.txt', 'w') as fpText:
     for freq in resultDict:
         fpText.write('\t' + freq + '\n\n')
         for location in resultDict[freq]:
             fpText.write(location + '\t')
             for i in range(7):
-                mcs = 'MCS'+ str(i)
+                mcs = 'MCS' + str(i)
                 if mcs in resultDict[freq][location].keys():
                     fpText.write(str(resultDict[freq][location][mcs]) + '\t')
+            fpText.write(str(resultDict[freq][location]['MCSRA']) + '\t')
             fpText.write('\n')
         fpText.write('\n\n')
