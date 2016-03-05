@@ -47,10 +47,11 @@ with open(BASE_OP_DIR + '\/' + 'throughput.txt', 'w') as fpText:
         fpText.write('\t' + freq + '\n\n')
         for location in resultDict[freq]:
             fpText.write(location + '\t')
-            for i in range(7):
+            for i in range(8):
                 mcs = 'MCS'+ str(i)
                 if mcs in resultDict[freq][location].keys():
                     fpText.write(str(resultDict[freq][location][mcs]) + '\t')
+            fpText.write(str(resultDict[freq][location]['MCSRA']) + '\t')
             fpText.write('\n')
         fpText.write('\n\n')
 

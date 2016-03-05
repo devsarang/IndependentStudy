@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="4469c35a-9954-4cb6-85d9-6cc18f2105cf" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CPU_Power.py" afterPath="$PROJECT_DIR$/CPU_Power.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/ParseThroughput.py" afterPath="$PROJECT_DIR$/ParseThroughput.py" />
     </list>
@@ -29,7 +28,7 @@
         <entry file="file://$PROJECT_DIR$/ParseThroughput.py">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="35" column="77" selection-start-line="35" selection-start-column="77" selection-end-line="35" selection-end-column="77" />
+              <caret line="48" column="41" selection-start-line="48" selection-start-column="41" selection-end-line="48" selection-end-column="41" />
               <folding>
                 <element signature="e#0#16#0" expanded="true" />
               </folding>
@@ -37,10 +36,10 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Output.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="Output.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/Output.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.6121739">
+            <state vertical-scroll-proportion="0.0">
               <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
@@ -49,11 +48,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="CPU_Power.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="CPU_Power.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/CPU_Power.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="158" column="51" selection-start-line="158" selection-start-column="51" selection-end-line="158" selection-end-column="51" />
+            <state vertical-scroll-proportion="5.4330435">
+              <caret line="178" column="36" selection-start-line="178" selection-start-column="36" selection-end-line="178" selection-end-column="36" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
               </folding>
@@ -72,9 +71,9 @@
         <option value="$PROJECT_DIR$/ParseData.py" />
         <option value="$PROJECT_DIR$/data.py" />
         <option value="$PROJECT_DIR$/test.py" />
-        <option value="$PROJECT_DIR$/ParseThroughput.py" />
-        <option value="$PROJECT_DIR$/CPU_Power.py" />
         <option value="$PROJECT_DIR$/Output.py" />
+        <option value="$PROJECT_DIR$/CPU_Power.py" />
+        <option value="$PROJECT_DIR$/ParseThroughput.py" />
       </list>
     </option>
   </component>
@@ -137,7 +136,7 @@
     <property name="settings.editor.splitter.proportion" value="0.2" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
   </component>
-  <component name="RunManager" selected="Python.Output">
+  <component name="RunManager" selected="Python.CPU_Power">
     <configuration default="false" name="test" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -372,8 +371,8 @@
     </list>
     <recent_temporary>
       <list size="5">
-        <item index="0" class="java.lang.String" itemvalue="Python.Output" />
-        <item index="1" class="java.lang.String" itemvalue="Python.ParseThroughput" />
+        <item index="0" class="java.lang.String" itemvalue="Python.ParseThroughput" />
+        <item index="1" class="java.lang.String" itemvalue="Python.Output" />
         <item index="2" class="java.lang.String" itemvalue="Python.test" />
         <item index="3" class="java.lang.String" itemvalue="Python.data" />
         <item index="4" class="java.lang.String" itemvalue="Python.ParseData" />
@@ -394,7 +393,7 @@
     <servers />
   </component>
   <component name="ToolWindowManager">
-    <frame x="-8" y="0" width="1930" height="1038" extended-state="0" />
+    <frame x="-8" y="0" width="1930" height="1038" extended-state="1" />
     <editor active="true" />
     <layout>
       <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.17834727" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
@@ -924,29 +923,29 @@
     <entry file="file://$PROJECT_DIR$/ParseThroughput.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="35" column="77" selection-start-line="35" selection-start-column="77" selection-end-line="35" selection-end-column="77" />
+          <caret line="48" column="41" selection-start-line="48" selection-start-column="41" selection-end-line="48" selection-end-column="41" />
           <folding>
             <element signature="e#0#16#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/CPU_Power.py">
+    <entry file="file://$PROJECT_DIR$/Output.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="158" column="51" selection-start-line="158" selection-start-column="51" selection-end-line="158" selection-end-column="51" />
+          <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/Output.py">
+    <entry file="file://$PROJECT_DIR$/CPU_Power.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.6121739">
-          <caret line="16" column="28" selection-start-line="16" selection-start-column="28" selection-end-line="16" selection-end-column="28" />
+        <state vertical-scroll-proportion="5.4330435">
+          <caret line="178" column="36" selection-start-line="178" selection-start-column="36" selection-end-line="178" selection-end-column="36" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -143,7 +143,7 @@ for freq in os.listdir(BASE_IP_DIR):
                         mcsFile.write('Power : ' + str(avgPower) + '\t')
                         mcsFile.write('Start Index(from end index): ' + str(startIndex) + '\t')
                         mcsFile.write('End Index : ' + str(endIndex) + '\n')
-                    elif endIndex == 0 and (mcs == 'MCS0' or mcs == 'MCS1'):
+                    elif endIndex == 0:
                         startIndex = 80
                         endIndex = 120
                         avgPower = sum(powerList[startIndex:endIndex:1])/(endIndex - startIndex)
@@ -158,12 +158,12 @@ for freq in os.listdir(BASE_IP_DIR):
                         manualEdit = True
                         print('calculate manually')
                     avgPowerList.append(avgPower)
-                    powerBaseList.append(sum(powerList[1:10])/10)
+                    powerBaseList.append(sum(medPowerList[1:10])/10)
             if manualEdit:
                 mcsFile.write("Average Power for MCS : check manually")
-                locationDict[mcs] = 1          #change it
+                locationDict[mcs] = 0
             else:
-                diffPower = abs(sum([i - j for i, j in zip(avgPowerList, powerBaseList)])/len(avgPowerList))                    # remove absolute
+                diffPower = sum([i - j for i, j in zip(avgPowerList, powerBaseList)])/len(avgPowerList)
                 mcsFile.write("Average Power for MCS : " + str(diffPower))
                 locationDict[mcs] = diffPower
         freqDict[location] = locationDict
@@ -175,7 +175,7 @@ with open(BASE_OP_DIR + '\/' + 'cpu_result.txt', 'w') as fpText:
         fpText.write('\t' + freq + '\n\n')
         for location in resultDict[freq]:
             fpText.write(location + '\t')
-            for i in range(7):
+            for i in range(8):
                 mcs = 'MCS' + str(i)
                 if mcs in resultDict[freq][location].keys():
                     fpText.write(str(resultDict[freq][location][mcs]) + '\t')
