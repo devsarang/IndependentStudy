@@ -1,46 +1,57 @@
 import linecache
 import os
+import json
 
-BASE_DIR = "C:\PowerMeasurementStudy\wifi"
-T20MHZ_DIR = "20MHz_S4"
-T40MHZ_DIR = "40MHz_S4"
 
-#throughput for 20MHz
-curDir = BASE_DIR + "\/" + T20MHZ_DIR
-throughputMap = {}
+BASE_IP_DIR = "C:\PowerMeasurementStudy\Readings"
+BASE_OP_DIR = "C:\PowerMeasurementStudy\Results"
 
-for mcsDir in os.listdir(curDir):
-    mcsDirs = curDir + "\/" + mcsDir
-    tempMap = {}
-    for locationDir in os.listdir(mcsDirs):
-        locationDirs = mcsDirs + "\/" + locationDir
-        throughputSum = 0
-        numSample = 0
-        for readNum in os.listdir(locationDirs):
-            readNums = locationDirs + "\/" + readNum
-            iperfFile = readNums+"\/"+"iperfoutput"
-            if os.path.isfile(iperfFile):
-                lineNum = 8   # for finding the bandwidth value
-                #while len(linecache.getline(iperfFile, lineNum).split("/sec")) != 2:
-                  #  lineNum += 1                                                          #increase linunumber if not found in the current line
-                line = linecache.getline(iperfFile, lineNum)
+resultDict = {}
+#BASE_IP_DIR = "C:\Test\Readings"
+#BASE_OP_DIR = "C:\Test\Results"
 
-                if line != '':
-                    throughput = float(line.split("/sec")[0].split(" ")[-2])
-                    if line.split("/sec")[0].split(" ")[-1] == 'Kbits':
-                        throughputSum += throughput/1000
-                        numSample += 1
-                    elif line.split("/sec")[0].split(" ")[-1] == 'Mbits':
-                        throughputSum += throughput
-                        numSample += 1
-                    else:
-                        throughputSum += throughput
-        if numSample < 5:
-            print (mcsDir)
-            print (locationDir)
-            print (numSample)
-            #tempMap[locationDir] = throughputSum/numSample
-    throughputMap[mcsDir] = tempMap
-#print throughputMap
+for freq in os.listdir(BASE_IP_DIR):
+    freqDir = BASE_IP_DIR + "\/" + freq
+    freqDict = {}
+    for location in os.listdir(freqDir):
+        locationDict = {}
+        locationDir = freqDir + "\/" + location
+        for mcs in os.listdir(locationDir):
+            mcsDir = locationDir + "\/" + mcs
+            throughputSum = 0
+            numSample = 0
+            for reading in os.listdir(mcsDir):
+                readingDir = mcsDir + "\/" + reading
+                iperfFile = readingDir + "\/" + "iperfoutput"
+                if os.path.isfile(iperfFile):
+                    lineNum = 8   # for finding the bandwidth value
+                    while len(linecache.getline(iperfFile, lineNum).split("/sec")) != 2:
+                        lineNum += 1                                                          #increase linunumber if not found in the current line
+                    line = linecache.getline(iperfFile, lineNum)
+                    if line != '':
+                        throughput = float(line.split("/sec")[0].split(" ")[-2])
+                        if line.split("/sec")[0].split(" ")[-1] == 'Kbits':
+                            throughputSum += throughput/1000
+                            numSample += 1
+                        elif line.split("/sec")[0].split(" ")[-1] == 'Mbits':
+                            throughputSum += throughput
+                            numSample += 1
+            locationDict[mcs] = throughputSum/numSample
+        freqDict[location] = locationDict
+    resultDict[freq] = freqDict
 
+with open(BASE_OP_DIR + '\/' + 'throughput.json', 'w') as fpJson:
+    json.dump(resultDict, fpJson)
+with open(BASE_OP_DIR + '\/' + 'throughput.txt', 'w') as fpText:
+    for freq in resultDict:
+        fpText.write('\t' + freq + '\n\n')
+        for location in resultDict[freq]:
+            fpText.write(location + '\t')
+            for i in range(8):
+                mcs = 'MCS'+ str(i)
+                if mcs in resultDict[freq][location].keys():
+                    fpText.write(str(resultDict[freq][location][mcs]) + '\t')
+            fpText.write(str(resultDict[freq][location]['MCSRA']) + '\t')
+            fpText.write('\n')
+        fpText.write('\n\n')
 
