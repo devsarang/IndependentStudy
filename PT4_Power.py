@@ -4,6 +4,7 @@ from matplotlib.backends.backend_pdf import PdfPages
 import scipy.signal as scpy
 import numpy as np
 import sys
+from datetime import datetime
 from sys import platform as _platform
 import json
 
@@ -14,8 +15,8 @@ base_power_auto_counter= 0
 window_size = 400
 
 MAX_THRESHOLD = {
-    '40MHz': {'MCS0': 100, 'MCS1': 100, 'MCS2': 120, 'MCS3': 150, 'MCS4': 200, 'MCS5': 300, 'MCS6': 300, 'MCS7': 300,
-              'MCSRA': 300},
+    '40MHz': {'MCS0': 450, 'MCS1': 550, 'MCS2': 650, 'MCS3': 650, 'MCS4': 750, 'MCS5': 900, 'MCS6': 1000, 'MCS7': 1000,
+              'MCSRA': 1000},
     '20MHz': {'MCS0': 450, 'MCS1': 550, 'MCS2': 600, 'MCS3': 650, 'MCS4': 700, 'MCS5': 800, 'MCS6': 900, 'MCS7': 900,
               'MCSRA': 900}}
 
@@ -23,7 +24,6 @@ MIN_THRESHOLD = {'MCS0': 10, 'MCS1': 10, 'MCS2': 10, 'MCS3': 10, 'MCS4': 16, 'MC
                  'MCSRA': 60}
 
 
-locationPowerDictionary = {}
 
 if _platform == "linux" or _platform == "linux2":
     BASE_IP_DIR = "/media/tejash/Tejash/MSCS/CSEIndependentStudy/PowerMeasurementStudy/Readings"
@@ -36,18 +36,26 @@ elif _platform == "win32" or _platform == 'win64':
 
 print (
     'input directory: ' + BASE_IP_DIR + ' :::: output directory: ' + BASE_OP_DIR + ' ::: ' + 'Slash Separator:' + SLASH_SEPARATOR)
+errorlogfile = open(
+                BASE_OP_DIR + SLASH_SEPARATOR + 'ErrorLog.txt',
+                'a')
+errorlogfile.write("Writing log for run started at : " + str(datetime.now()) +'\n')
+errorlogfile.write("---------------------------------------------------------"+'\n')
 
 for freq in os.listdir(BASE_IP_DIR):
     freqDir = BASE_IP_DIR + SLASH_SEPARATOR + freq
+    locationPowerDictionary = {}
     for location in os.listdir(freqDir):
         locationDir = freqDir + SLASH_SEPARATOR + location
+        mcsValues = {}
         for mcs in os.listdir(locationDir):
             mcsDir = locationDir + SLASH_SEPARATOR + mcs
             avgPowerList = []
-            mcsValues = {}
             manualEdit = False
             if not os.path.exists(os.path.dirname(BASE_OP_DIR + SLASH_SEPARATOR + freq + SLASH_SEPARATOR + location + SLASH_SEPARATOR + mcs + SLASH_SEPARATOR + 'PowerAvg.txt')):
                 os.makedirs(os.path.dirname(BASE_OP_DIR + SLASH_SEPARATOR + freq + SLASH_SEPARATOR + location + SLASH_SEPARATOR + mcs + SLASH_SEPARATOR + 'PowerAvg.txt'))
+            else :
+                continue
             mcsFile = open(
                 BASE_OP_DIR + SLASH_SEPARATOR + freq + SLASH_SEPARATOR + location + SLASH_SEPARATOR + mcs + SLASH_SEPARATOR + 'PowerAvg.txt',
                 'w')
@@ -57,8 +65,40 @@ for freq in os.listdir(BASE_IP_DIR):
                     with open(readingDir + SLASH_SEPARATOR + freq + "_" + mcs + "_" + reading + ".txt") as logFile:
                         lines = logFile.readlines()
                     print(logFile.name)
+                    errorlogfile.write(logFile.name+'\n')
                 except IOError:
-                    continue
+                    print ('Error reading file:  '+readingDir + SLASH_SEPARATOR + freq + "_" + mcs + "_" + reading + ".txt")
+                    errorlogfile.write('Error reading file:  '+readingDir + SLASH_SEPARATOR + freq + "_" + mcs + "_" + reading + ".txt"+'\n')
+                    try :
+                        with open(readingDir + "/" + mcs.lower() + "_" + reading + ".txt") as logFile:
+                            lines = logFile.readlines()
+                        print(logFile.name)
+                        errorlogfile.write(logFile.name+'\n')
+
+                    except :
+                        print('Error reading file: '+readingDir + "/" + mcs.lower() + "_" + reading + ".txt" )
+                        errorlogfile.write('Error reading file:  '+readingDir + "/" + mcs.lower() + "_" + reading + ".txt" +'\n')
+                        try :
+                            with open(readingDir + "/" + freq[0:3]+freq[3:].lower() + "_" + mcs + "_" + reading + ".txt") as logFile:
+                                lines = logFile.readlines()
+                                print(logFile.name)
+                                errorlogfile.write(logFile.name+'\n')
+
+                        except :
+                            print('Error reading file: '+readingDir + "/" + freq[0:3]+freq[4:].lower() + "_" + mcs + "_" + reading + ".txt")
+                            errorlogfile.write('Error reading file: '+readingDir + "/" + freq[0:3]+freq[4:].lower() + "_" + mcs + "_" + reading + ".txt" +'\n')
+
+                            try:
+                                with open(readingDir + "/" + 'ra' + "_" + reading + ".txt") as logFile:
+                                    lines = logFile.readlines()
+                                    print(logFile.name)
+                                    errorlogfile.write(logFile.name+'\n')
+
+                            except :
+                                print('Error reading file: '+readingDir + "/" + 'ra' + "_" + reading + ".pt4")
+                                errorlogfile.write('Error reading file: '+readingDir + "/" + 'ra' + "_" + reading + ".pt4" +'\n')
+
+                                continue
                 powerList = []
 
                 opFile = BASE_OP_DIR + SLASH_SEPARATOR + freq + SLASH_SEPARATOR + location + SLASH_SEPARATOR + mcs + SLASH_SEPARATOR + reading + SLASH_SEPARATOR + "extracted_power_reading.txt"
@@ -83,7 +123,7 @@ for freq in os.listdir(BASE_IP_DIR):
                     plt.title('Power')
                     plt.plot(np.convolve(powerList, np.ones(799) / 799, mode='valid'), c='g')
                     plt.plot(medPowerList, c='b', marker='o', markersize=0.0, linewidth=0.1)
-                    plt.axis([0, 85000, 0, 5000])
+                    plt.axis([0, len(lines), 0, 7000])
                     pdf.savefig(dpi=200)
                     plt.close()
 
@@ -99,36 +139,46 @@ for freq in os.listdir(BASE_IP_DIR):
                 avgPower = 0
                 for i in range(len(medPowerList) - windowSize - 1):
                     if not gotEndIndex:
-                        if medPowerList[i] - medPowerList[i + windowSize] > MAX_THRESHOLD[freq][mcs] and 65000 <= i <= 81000:
+                        if medPowerList[i] - medPowerList[i + windowSize] > MAX_THRESHOLD[freq][mcs] and (0.80*len(medPowerList)) <= i <= len(medPowerList):
                             endIndex = i
                             print(endIndex)
+                            errorlogfile.write("end index:" +str(endIndex)+'\n')
                             gotEndIndex = True
                     else:
                         if medPowerList[i + windowSize] - medPowerList[i] > MAX_THRESHOLD[freq][mcs] / 2:
                             if endIndex - 7000 <= i <= endIndex - 800:
                                 endIndex = i
                                 print (endIndex)
+                                errorlogfile.write("end index:" +str(endIndex)+'\n')
+
                                 gotEndIndex = True
                         if medPowerList[i + windowSize] - medPowerList[i] > MAX_THRESHOLD[freq][
                             mcs] and 20000 <= i <= 40000:
                             startIndex = i + windowSize
                             print (startIndex)
+                            errorlogfile.write("start index:" +str(startIndex)+'\n')
+
                 for count in range(1000,9000,1):
                     temp_arr = np.array(medPowerList[count:count+baseWindowSize])
                     if (np.std(temp_arr,ddof=1))<50 :
                         baseStartIndex = count
                         baseEndIndex = count+baseWindowSize
                         print('base start index:'+ str(baseStartIndex) +" base end index:"+ str(baseEndIndex))
+                        errorlogfile.write('base start index:'+ str(baseStartIndex) +" base end index:"+ str(baseEndIndex)+'\n')
+
                         avgBasePower = sum(powerList[baseStartIndex:baseEndIndex:1]) / (baseEndIndex - baseStartIndex)
                         break
 
-                mcsFile.write('Base Power : ' + str(avgBasePower) + '\t')
+                if avgBasePower !=0 :
+                    mcsFile.write('Base Power : ' + str(avgBasePower) + '\t')
+                else :
+                    mcsFile.write('Base Power : check manually. \t')
 
                 if 40000 < endIndex - startIndex < 55000 and startIndex != 0 and endIndex != 0:
                     avgPower = sum(powerList[startIndex:endIndex:1]) / (endIndex - startIndex)
                     mcsFile.write('Power : ' + str(avgPower) + '\t')
                     mcsFile.write('Start Index : ' + str(startIndex) + '\t')
-                    mcsFile.write('End Index : ' + str(endIndex) + '\n')
+                    mcsFile.write('End Index : ' + str(endIndex))
 
                 elif endIndex == 0 and mcs == 'MCS0':
                     startIndex = 40000
@@ -136,7 +186,7 @@ for freq in os.listdir(BASE_IP_DIR):
                     avgPower = sum(powerList[startIndex:endIndex:1]) / (endIndex - startIndex)
                     mcsFile.write('Power : ' + str(avgPower) + '\t')
                     mcsFile.write('Start Index(fixed): ' + str(startIndex) + '\t')
-                    mcsFile.write('End Index(fixed) : ' + str(endIndex) + '\n')
+                    mcsFile.write('End Index(fixed) : ' + str(endIndex))
 
                 elif endIndex != 0:
                     smallWindow = 799
@@ -146,41 +196,47 @@ for freq in os.listdir(BASE_IP_DIR):
                     if startIndex == 0:
                         startIndex = endIndex - 50000
                     print ("start: " + str(startIndex) + " end " + str(endIndex))
+                    errorlogfile.write("start: " + str(startIndex) + " end " + str(endIndex)+'\n')
                     avgPower = sum(powerList[startIndex:endIndex:1]) / (endIndex - startIndex)
                     mcsFile.write('Power : ' + str(avgPower) + '\t')
                     mcsFile.write('Start Index(from end index): ' + str(startIndex) + '\t')
-                    mcsFile.write('End Index : ' + str(endIndex) + '\n')
+                    mcsFile.write('End Index : ' + str(endIndex))
 
                 else:
+                    mcsFile.write('Power : check manually \t')
                     manualEdit = True
                     manual_counter += 1
-                    print('calculate manually')
+                    print('calculate main power manually')
+                    errorlogfile.write("calculate main power manually"+'\n')
+
+                mcsFile.write('\n')
 
                 if not manualEdit:
                     auto_counter += 1
 
                 if avgBasePower != 0:
                     base_power_auto_counter += 1
+                    base_power_failed = False
                 else:
+                    print ('base power failed.')
+                    errorlogfile.write('base power failed.'+'\n')
+
+                    base_power_failed = True
                     base_power_manual_counter += 1
 
-                if avgPower != 0 and avgBasePower == 0:
-                    print ('Script failed due to base power. check base power manually. ')
+                if avgPower != 0 and avgBasePower != 0:
+                    avgPowerList.append(avgPower-avgBasePower)
 
-                avgPowerList.append(avgPower)
+            if len(avgPowerList) != 0 and len(avgPowerList) >= 3:
+                mcsFile.write("Average Power for MCS : " + str(sum(avgPowerList) / len(avgPowerList)))
+                mcsValues[mcs] =  sum(avgPowerList) / len(avgPowerList)
+            else :
+                mcsFile.write("Average Power for MCS : calculate manually" )
+                mcsValues[mcs] =  'check manually'
 
-            if len(avgPowerList) != 0:
-
-                if manualEdit:
-                    mcsFile.write("Average Power for MCS : check manually")
-                    mcsValues[mcs] = 'calculate manually'
-                else:
-                    mcsFile.write("Average Power for MCS : " + str(sum(avgPowerList) / len(avgPowerList)))
-                    mcsValues[mcs] =  sum(avgPowerList) / len(avgPowerList)
-        locationPowerDictionary[location] = mcsValues
-
-
-    with open(BASE_OP_DIR + SLASH_SEPARATOR + freq + SLASH_SEPARATOR + "final_" + freq + "data.json", 'w') as fp:
-        json.dump(locationPowerDictionary, fp)
+            # locationPowerDictionary[location] = mcsValues
+            # with open(BASE_OP_DIR + SLASH_SEPARATOR + freq + SLASH_SEPARATOR + "final_" + freq + "data.json", 'w') as fp:
+            #     json.dump(locationPowerDictionary, fp)
 
     print("manual_count : " + str(manual_counter) + "auto counter: " + str(auto_counter))
+    errorlogfile.write("manual_count : " + str(manual_counter) + "auto counter: " + str(auto_counter)+'\n')

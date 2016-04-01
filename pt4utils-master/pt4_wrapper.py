@@ -23,12 +23,26 @@ for freq in os.listdir(BASE_IP_DIR):
                             lines = logFile.readlines()
                         print(logFile.name)
                     except :
-                        print('Error reading file: '+readingDir + "/" + freq + "_" + mcs + "_" + reading + ".pt4")
-                        print('Error reading file: '+readingDir + "/" + mcs.lower() + "_" + reading + ".pt4" )
+                        try :
+                            with open(readingDir + "/" + freq[0:3]+freq[3:].lower() + "_" + mcs + "_" + reading + ".pt4") as logFile:
+                                lines = logFile.readlines()
+                                print(logFile.name)
+                        except :
+                            try:
+                                with open(readingDir + "/" + 'ra' + "_" + reading + ".pt4") as logFile:
+                                    lines = logFile.readlines()
+                                    print(logFile.name)
+                            except :
+                                print('Error reading file: '+readingDir + "/" + freq + "_" + mcs + "_" + reading + ".pt4")
+                                print('Error reading file: '+readingDir + "/" + mcs.lower() + "_" + reading + ".pt4" )
+                                print('Error reading file: '+readingDir + "/" + freq[0:3]+freq[4:].lower() + "_" + mcs + "_" + reading + ".pt4")
 
                         # continue
                 if not os.path.exists(os.path.splitext(logFile.name)[0] + ".txt"):
                     file = open(os.path.splitext(logFile.name)[0] + ".txt", 'w')
-                    for smpl in Pt4FileReader.readAsVector(logFile.name):
-                        file.write(str(smpl[2]) + '\n')
+                    try :
+                        for smpl in Pt4FileReader.readAsVector(logFile.name):
+                            file.write(str(smpl[2]) + '\n')
+                    except :
+                        print ('there was a problem reading the file:'+ logFile.name)
                     # print(smpl[2])

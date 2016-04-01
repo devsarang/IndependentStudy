@@ -1,10 +1,18 @@
 import json
+from sys import platform as _platform
 import matplotlib.pyplot as plt
 import numpy as np
 
-THROUGHPUT_FILE = 'C:\PowerMeasurementStudy\Results\/throughput.json'
-CPU_FILE = 'C:\PowerMeasurementStudy\Results\cpu_result.json'
-POWER_FILE = 'C:\PowerMeasurementStudy\Results\power_result.json'
+
+
+if _platform == "linux" or _platform == "linux2":
+    THROUGHPUT_FILE = '/home/tejash/MSCS/CSIndependentStudy/Scripts/IndependentStudy/result/throughput.json'
+    CPU_FILE = '/home/tejash/MSCS/CSIndependentStudy/Scripts/IndependentStudy/result/cpu_result.json'
+    POWER_FILE = '/home/tejash/MSCS/CSIndependentStudy/Scripts/IndependentStudy/result/power_result.json'
+elif _platform == "win32" or _platform == 'win64':
+    THROUGHPUT_FILE = 'C:\PowerMeasurementStudy\Results\/throughput.json'
+    CPU_FILE = 'C:\PowerMeasurementStudy\Results\cpu_result.json'
+    POWER_FILE = 'C:\PowerMeasurementStudy\Results\power_result.json'
 
 throughputFile = open(THROUGHPUT_FILE)
 throughputStr = throughputFile.read()
