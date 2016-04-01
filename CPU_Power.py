@@ -4,7 +4,6 @@ from matplotlib.backends.backend_pdf import PdfPages
 import scipy.signal as scpy
 import numpy as np
 import json
-import random
 
 
 PBASE = {250000: [272.474, 271.842, 271.53, 271.852], 300000: [271.104, 272.486, 272.03, 272.26],
@@ -158,18 +157,17 @@ for freq in os.listdir(BASE_IP_DIR):
                         manualEdit = True
                         print('calculate manually')
                     avgPowerList.append(avgPower)
-                    powerBaseList.append(sum(medPowerList[1:10])/10)
+                    powerBaseList.append(sum(medPowerList[1:10])/10)     # using median list as it gives a better picture comapred to actual power
             if manualEdit:
                 mcsFile.write("Average Power for MCS : check manually")
                 locationDict[mcs] = 0
             else:
-                diffPower = sum([i - j for i, j in zip(avgPowerList, powerBaseList)])/len(avgPowerList)
+                diffPower = sum([i - j for i, j in zip(avgPowerList, powerBaseList)])/len(avgPowerList)       # subtracting base power from the avg power to get the diff ie Pcpu - Pbase
                 mcsFile.write("Average Power for MCS : " + str(diffPower))
                 locationDict[mcs] = diffPower
         freqDict[location] = locationDict
     resultDict[freq] = freqDict
-with open(BASE_OP_DIR + '\/' + 'cpu_result.json', 'w') as fpJson:
-    json.dump(resultDict, fpJson)
+
 with open(BASE_OP_DIR + '\/' + 'cpu_result.txt', 'w') as fpText:
     for freq in resultDict:
         fpText.write('\t' + freq + '\n\n')
