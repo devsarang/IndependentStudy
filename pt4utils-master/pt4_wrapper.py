@@ -2,8 +2,7 @@ import os
 import sys
 from pt4_filereader import Pt4FileReader
 
-BASE_IP_DIR = "/home/tejash/MSCS/CSIndependentStudy/TestReadings"
-BASE_OP_DIR = "/home/tejash/MSCS/CSIndependentStudy/Results"
+BASE_IP_DIR = "/media/tejash/Tejash/MSCS/CSEIndependentStudy/PowerMeasurementStudy/Readings"
 
 for freq in os.listdir(BASE_IP_DIR):
     freqDir = BASE_IP_DIR + "/" + freq
@@ -19,10 +18,17 @@ for freq in os.listdir(BASE_IP_DIR):
                         lines = logFile.readlines()
                     print(logFile.name)
                 except IOError:
-                    continue
+                    try:
+                        with open(readingDir + "/" + mcs.lower() + "_" + reading + ".pt4") as logFile:
+                            lines = logFile.readlines()
+                        print(logFile.name)
+                    except :
+                        print('Error reading file: '+readingDir + "/" + freq + "_" + mcs + "_" + reading + ".pt4")
+                        print('Error reading file: '+readingDir + "/" + mcs.lower() + "_" + reading + ".pt4" )
 
-                for smpl in Pt4FileReader.readAsVector(logFile.name):
-                    with open(os.path.splitext(logFile.name)[0]+".txt", 'a') as the_file:
-                        the_file.write(str(smpl[2])+'\n')
-                    print(smpl[2])
-                    print(logFile.name)
+                        # continue
+                if not os.path.exists(os.path.splitext(logFile.name)[0] + ".txt"):
+                    file = open(os.path.splitext(logFile.name)[0] + ".txt", 'w')
+                    for smpl in Pt4FileReader.readAsVector(logFile.name):
+                        file.write(str(smpl[2]) + '\n')
+                    # print(smpl[2])
